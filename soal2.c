@@ -8,55 +8,44 @@ struct meteorit {
     int kemurnian;
 };
 
-int main() {
+static int compare_meteorit(const void *a, const void *b) {
+    const struct meteorit *x = a;
+    const struct meteorit *y = b;
+
+    if (x->kemurnian != y->kemurnian) {
+        return y->kemurnian - x->kemurnian;
+    }
+    if (x->massa != y->massa) {
+        return x->massa - y->massa;
+    }
+    return strcmp(x->nama, y->nama);
+}
+
+int main(void) {
     int N;
-    if (scanf("%d", &N) != 1) return 0;
-    
-    struct meteorit M[N];
-
-    for(int i=0; i<N; i++){
-        scanf("%s", M[i].nama);
-        scanf("%d", &M[i].massa);
-        scanf("%d", &M[i].kemurnian);
+    if (scanf("%d", &N) != 1 || N <= 0) {
+        return 0;
     }
 
-    
-    for(int i=0; i<N; i++){
-        for(int j=0; j<N-i; j++){
-            if(M[j].kemurnian < M[j+1].kemurnian) {
-                struct meteorit temp = M[j];
-                M[j] = M[j+1];
-                M[j+1] = temp;
-            }
+    struct meteorit *M = malloc(sizeof(*M) * N);
+    if (M == NULL) {
+        return 1;
+    }
+
+    for (int i = 0; i < N; i++) {
+        if (scanf("%29s %d %d", M[i].nama, &M[i].massa, &M[i].kemurnian) != 3) {
+            free(M);
+            return 0;
         }
     }
 
-    for(int i=0; i<N; i++){
-        if(M[i].kemurnian == M[i+1].kemurnian){
-            if(M[i+1].massa < M[i].massa){
-                struct meteorit temp = M[i];
-                M[i] = M[i+1];
-                M[i+1] = temp; 
-            }
-        }
-    }
-
-    for(int i=0; i<N; i++){
-        int res;
-        if(M[i].kemurnian == M[i+1].kemurnian && M[i].massa == M[i+1].massa){
-            res = strcmp(M[i].nama, M[i+1].nama);
-            if(res>0){
-                struct meteorit temp = M[i];
-                M[i] = M[i+1];
-                M[i+1] = temp;
-            }
-        }
-    }
+    qsort(M, N, sizeof(*M), compare_meteorit);
 
     int limit = (N < 3) ? N : 3;
-    for(int i=0; i<limit; i++){
+    for (int i = 0; i < limit; i++) {
         printf("%s %d %d\n", M[i].nama, M[i].massa, M[i].kemurnian);
     }
-    
+
+    free(M);
     return 0;
 }
